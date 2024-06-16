@@ -512,8 +512,7 @@ class CheckpointLoaderSimple:
     CATEGORY = "loaders"
 
     def load_checkpoint(self, ckpt_name):
-        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
-        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        out = comfy.sd.load_checkpoint_guess_config(ckpt_name, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
         return out[:3]
 
 class DiffusersLoader:
@@ -681,12 +680,8 @@ class VAELoader:
     CATEGORY = "loaders"
 
     #TODO: scale factor?
-    def load_vae(self, vae_name):
-        if vae_name in ["taesd", "taesdxl"]:
-            sd = self.load_taesd(vae_name)
-        else:
-            vae_path = folder_paths.get_full_path("vae", vae_name)
-            sd = comfy.utils.load_torch_file(vae_path)
+    def load_vae(self, vae_path):
+        sd = comfy.utils.load_torch_file(vae_path)
         vae = comfy.sd.VAE(sd=sd)
         return (vae,)
 
@@ -1327,7 +1322,7 @@ def common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, 
                                   force_full_denoise=force_full_denoise, noise_mask=noise_mask, callback=callback, disable_pbar=disable_pbar, seed=seed)
     out = latent.copy()
     out["samples"] = samples
-    return (out, )
+    return (out, ) # return as tuple that has
 
 class KSampler:
     @classmethod
@@ -1465,9 +1460,7 @@ class LoadImage:
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "load_image"
-    def load_image(self, image):
-        image_path = folder_paths.get_annotated_filepath(image)
-        
+    def load_image(self, image_path):
         img = node_helpers.pillow(Image.open, image_path)
         
         output_images = []

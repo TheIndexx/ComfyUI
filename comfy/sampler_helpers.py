@@ -1,6 +1,5 @@
 import torch
-import comfy.model_management
-import comfy.conds
+import comfy.utils
 
 def prepare_mask(noise_mask, shape, device):
     """ensures noise mask is of proper dimensions"""
@@ -19,7 +18,7 @@ def get_models_from_cond(cond, model_type):
 
 def convert_cond(cond):
     out = []
-    for c in cond:
+    for c in cond[0]: # changed to cond[0] from cond
         temp = c[1].copy()
         model_conds = temp.get("model_conds", {})
         if c[0] is not None:

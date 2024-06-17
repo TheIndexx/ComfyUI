@@ -590,11 +590,11 @@ class LoraLoader:
 
     CATEGORY = "loaders"
 
-    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+    def load_lora(self, model, clip, lora_path, strength_model, strength_clip):
         if strength_model == 0 and strength_clip == 0:
             return (model, clip)
 
-        lora_path = folder_paths.get_full_path("loras", lora_name)
+        #lora_path = folder_paths.get_full_path("loras", lora_name)
         lora = None
         if self.loaded_lora is not None:
             if self.loaded_lora[0] == lora_path:

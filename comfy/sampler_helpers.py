@@ -18,7 +18,8 @@ def get_models_from_cond(cond, model_type):
 
 def convert_cond(cond):
     out = []
-    for c in cond[0]: # changed to cond[0] from cond
+    for c in cond: # changed to cond[0] from cond (changed back)
+        print("C:", len(c), "||", c[0].shape)
         temp = c[1].copy()
         model_conds = temp.get("model_conds", {})
         if c[0] is not None:

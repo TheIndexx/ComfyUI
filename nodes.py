@@ -393,6 +393,7 @@ class InpaintModelConditioning:
 
         out = []
         for conditioning in [positive, negative]:
+            # print("Conditioning: ", len(conditioning), len(conditioning[0]), len(conditioning[0][0]))
             c = node_helpers.conditioning_set_values(conditioning, {"concat_latent_image": concat_latent,
                                                                     "concat_mask": mask})
             out.append(c)
@@ -1532,23 +1533,28 @@ class LoadImageMask:
 
     RETURN_TYPES = ("MASK",)
     FUNCTION = "load_image"
-    def load_image(self, image, channel):
-        image_path = folder_paths.get_annotated_filepath(image)
+    def load_image(self, image_path, channel):
         i = node_helpers.pillow(Image.open, image_path)
         i = node_helpers.pillow(ImageOps.exif_transpose, i)
+        print(i.getbands())
         if i.getbands() != ("R", "G", "B", "A"):
             if i.mode == 'I':
                 i = i.point(lambda i: i * (1 / 255))
             i = i.convert("RGBA")
+            print("HERE")
         mask = None
         c = channel[0].upper()
+
         if c in i.getbands():
             mask = np.array(i.getchannel(c)).astype(np.float32) / 255.0
+            print("Channel:", c)
+            print(mask[300])
             mask = torch.from_numpy(mask)
             if c == 'A':
                 mask = 1. - mask
         else:
             mask = torch.zeros((64,64), dtype=torch.float32, device="cpu")
+        
         return (mask.unsqueeze(0),)
 
     @classmethod

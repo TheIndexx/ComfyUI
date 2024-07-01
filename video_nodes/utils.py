@@ -4,9 +4,10 @@ from typing import Iterable
 import shutil
 import subprocess
 import re
-
+import asyncio
+# from ComfyUI import server
 import server
-from .logger import logger
+
 
 BIGMIN = -(2**53-1)
 BIGMAX = (2**53-1)
@@ -46,7 +47,6 @@ else:
     except:
         if "VHS_USE_IMAGEIO_FFMPEG" in os.environ:
             raise
-        logger.warn("Failed to import imageio_ffmpeg")
     if "VHS_USE_IMAGEIO_FFMPEG" in os.environ:
         ffmpeg_path = imageio_ffmpeg_path
     else:
@@ -58,7 +58,6 @@ else:
         if os.path.isfile("ffmpeg.exe"):
             ffmpeg_paths.append(os.path.abspath("ffmpeg.exe"))
         if len(ffmpeg_paths) == 0:
-            logger.error("No valid ffmpeg found.")
             ffmpeg_path = None
         elif len(ffmpeg_paths) == 1:
             #Evaluation of suitability isn't required, can take sole option
@@ -113,7 +112,9 @@ def calculate_file_hash(filename: str, hash_every_n: int = 1):
     h.update(str(os.path.getmtime(filename)).encode())
     return h.hexdigest()
 
-prompt_queue = server.PromptServer.instance.prompt_queue
+loop = asyncio.new_event_loop()
+p = server.PromptServer(loop)
+prompt_queue = p.instance.prompt_queue
 def requeue_workflow_unchecked():
     """Requeues the current workflow without checking for multiple requeues"""
     currently_running = prompt_queue.currently_running
@@ -163,7 +164,6 @@ def get_audio(file, start_time=0, duration=0):
         res =  subprocess.run(args + ["-f", "wav", "-"],
                               stdout=subprocess.PIPE, check=True).stdout
     except subprocess.CalledProcessError as e:
-        logger.warning(f"Failed to extract audio from: {file}")
         return False
     return res
 

@@ -18,3 +18,6 @@ venv/
 /user/
 pipeline.py
 cn_pipeline.py
+ad_pipeline.py
+a1111_inpaint.py
+modal_download.py

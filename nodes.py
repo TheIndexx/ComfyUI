@@ -1544,11 +1544,11 @@ class LoadImageMask:
             print("HERE")
         mask = None
         c = channel[0].upper()
-
+        
         if c in i.getbands():
             mask = np.array(i.getchannel(c)).astype(np.float32) / 255.0
             print("Channel:", c)
-            print(mask[300])
+            print(torch.count_nonzero(torch.from_numpy(mask)))
             mask = torch.from_numpy(mask)
             if c == 'A':
                 mask = 1. - mask
